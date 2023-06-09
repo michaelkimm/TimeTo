@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
-class MainActivity : AppCompatActivity(), OnItemListener {
+class MainActivity : AppCompatActivity() {
     
     private lateinit var binding: ActivityMainBinding
     
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity(), OnItemListener {
         val dayList = dayInMonthArray(selectedDate)
 
         // 어댑터 초기화
-        val adapter = CalendarAdapter(dayList, this)
+        val adapter = CalendarAdapter(dayList)
 
         // 레이아웃 설정(열 7개)
         var manager: RecyclerView.LayoutManager = GridLayoutManager(applicationContext, 7)
@@ -90,8 +90,8 @@ class MainActivity : AppCompatActivity(), OnItemListener {
 
     // 날짜 생성
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun dayInMonthArray(date: LocalDate): ArrayList<String> {
-        var dayList = ArrayList<String>()
+    private fun dayInMonthArray(date: LocalDate): ArrayList<LocalDate?> {
+        var dayList = ArrayList<LocalDate?>()
 
         var yearMonth = YearMonth.from(date)
 
@@ -106,21 +106,12 @@ class MainActivity : AppCompatActivity(), OnItemListener {
 
         for (i in 1..42) {
             if (i <= dayOfWeek || i > (lastDay + dayOfWeek)) {
-                dayList.add("")
+                dayList.add(null)
             } else {
-                dayList.add((i - dayOfWeek).toString())
+                // LocalDate.of(년, 월, 일)
+                dayList.add(LocalDate.of(selectedDate.year, selectedDate.monthValue, i - dayOfWeek))
             }
         }
-
         return dayList
     }
-
-
-    // 아이템 클릭 이벤트
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onItemClick(dayText: String) {
-        var yearMonth = yearMonthFromDate(selectedDate) + " " + dayText + "일"
-        Toast.makeText(this, yearMonth, Toast.LENGTH_SHORT).show()
-    }
-
 }
