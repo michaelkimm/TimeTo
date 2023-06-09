@@ -17,8 +17,6 @@ class MainActivity : AppCompatActivity() {
     
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var calendar: Calendar
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,27 +25,19 @@ class MainActivity : AppCompatActivity() {
         // binding 초기화
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         
-        // 현재 날짜
-        CalendarUtil.selectedDate = LocalDate.now()
-
-        // 초기화
-        calendar = Calendar.getInstance()
-        
         // 화면 설정
         setMonthView()
         
         // 이전 달 버튼 이벤트
         binding.preBtn.setOnClickListener {
             // 현재 월 -1 변수에 담기
-            CalendarUtil.selectedDate = CalendarUtil.selectedDate.minusMonths(1)
-            calendar.add(Calendar.MONTH, -1)    // 현재 달 -1
+            CalendarUtil.selectedDate.add(Calendar.MONTH, -1)    // 현재 달 -1
             setMonthView()
         }
         
         // 다음 달 버튼 이벤트
         binding.nextBtn.setOnClickListener {
-            CalendarUtil.selectedDate = CalendarUtil.selectedDate.plusMonths(1)
-            calendar.add(Calendar.MONTH, 1)     // 현재 달 +1
+            CalendarUtil.selectedDate.add(Calendar.MONTH, 1)     // 현재 달 +1
             setMonthView()
         }
     }
@@ -76,11 +66,11 @@ class MainActivity : AppCompatActivity() {
 
     // 날짜 타입 설정(월, 년)
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun monthYearFromDate(date: LocalDate): String {
-        var formatter = DateTimeFormatter.ofPattern("MM월 yyyy")
-        
-        // 받아온 날짜를 해당 포맷으로 변경
-        return date.format(formatter)
+    private fun monthYearFromDate(calendar: Calendar): String {
+        var year = calendar.get(Calendar.YEAR)
+        var month = calendar.get(Calendar.MONTH) + 1
+
+        return "$month 월 $year"
     }
 
     // 날짜 생성
@@ -88,7 +78,7 @@ class MainActivity : AppCompatActivity() {
     private fun dayInMonthArray(): ArrayList<Date> {
         var dayList = ArrayList<Date>()
 
-        var monthCalendar = calendar.clone() as Calendar
+        var monthCalendar = CalendarUtil.selectedDate.clone() as Calendar
 
         // 1일로 셋팅
         monthCalendar[Calendar.DAY_OF_MONTH] = 1

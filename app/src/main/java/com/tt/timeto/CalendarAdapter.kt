@@ -45,24 +45,46 @@ class CalendarAdapter(private val dayList: ArrayList<Date>):
 
         holder.dayText.text = dayNo.toString()
 
-        // 현재 날짜 색상 변경
-        if (CalendarUtil.selectedDate.dayOfMonth == dayNo) {
-            holder.itemView.setBackgroundColor(Color.LTGRAY)
-        }
+        // 넘어온 놀짜
+        var iYear   = dateCalendar.get(Calendar.YEAR)
+        var iMonth  = dateCalendar.get(Calendar.MONTH)
+        var iDay    = dateCalendar.get(Calendar.DAY_OF_MONTH)
 
-        // 텍스트 색상 지정
-        if ((position + 1) % 7 == 0) {  // 토요일은 파랑
-            holder.dayText.setTextColor(Color.BLUE)
-        } else if (position % 7 == 0) { // 일요일은 빨강
-            holder.dayText.setTextColor(Color.RED)
+        // 현재 날짜
+        var selectYear = CalendarUtil.selectedDate.get(Calendar.YEAR)
+        var selectMonth = CalendarUtil.selectedDate.get(Calendar.MONTH)
+        var selectDay = CalendarUtil.selectedDate.get(Calendar.DAY_OF_MONTH)
+
+        // 넘어온 날짜와 현재 날짜 비교
+        if (iYear == selectYear && iMonth == selectMonth) { // 같다면 진한 색상
+            holder.dayText.setTextColor(Color.parseColor("#000000"))    // 검정
+
+            // 현재 일자 비교해서 배경 색상 변경
+            if (selectDay == dayNo) {
+                holder.itemView.setBackgroundColor(Color.LTGRAY)
+            }
+
+            // 텍스트 색상 지정
+            if ((position + 1) % 7 == 0) {  // 토요일은 파랑
+                holder.dayText.setTextColor(Color.BLUE)
+            } else if (position % 7 == 0) { // 일요일은 빨강
+                holder.dayText.setTextColor(Color.RED)
+            }
+        } else {    // 다르다면 연한 색상
+            holder.dayText.setTextColor(Color.parseColor("#B4B4B4"))    // 연한 검정
+
+            // 텍스트 색상 지정
+            if ((position + 1) % 7 == 0) {  // 토요일은 연한 파랑
+                holder.dayText.setTextColor(Color.parseColor("#99CCFF"))
+            } else if (position % 7 == 0) { // 일요일은 연한 빨강
+                holder.dayText.setTextColor(Color.parseColor("#FF9999"))
+            }
         }
 
         // 날짜 클릭 이벤트
         holder.itemView.setOnClickListener {
             // 인터페이스를 통해 날짜를 넘겨줌
-            var iYear   = dateCalendar.get(Calendar.YEAR)
-            var iMonth  = dateCalendar.get(Calendar.MONTH)
-            var iDay    = dateCalendar.get(Calendar.DAY_OF_MONTH)
+
 
             var yearMonDay = "$iYear 년 $iMonth 월 $iDay 일"
             Toast.makeText(holder.itemView.context, yearMonDay, Toast.LENGTH_SHORT).show()
