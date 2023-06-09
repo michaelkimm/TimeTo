@@ -9,9 +9,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
-import java.time.LocalDate
+import java.util.Calendar
+import java.util.Date
 
-class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
+class CalendarAdapter(private val dayList: ArrayList<Date>):
     RecyclerView.Adapter<CalendarAdapter.ItemViewHolder>() {
 
     class ItemViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
@@ -31,13 +32,22 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
 
         // 날짜 변수에 담기
-        var day = dayList[holder.adapterPosition]
+        var monthDate = dayList[holder.adapterPosition]
 
-        if (day == null) {
-            holder.dayText.text = ""
-        } else {
-            // 해당 일자를 넣는다
-            holder.dayText.text = day.dayOfMonth.toString()
+        // 초기화
+        var dateCalendar = Calendar.getInstance()
+
+        // 날짜 캘린더에 담기
+        dateCalendar.time = monthDate
+
+        // 캘린더 값 날짜 변수에 담기
+        var dayNo = dateCalendar.get(Calendar.DAY_OF_MONTH)
+
+        holder.dayText.text = dayNo.toString()
+
+        // 현재 날짜 색상 변경
+        if (CalendarUtil.selectedDate.dayOfMonth == dayNo) {
+            holder.itemView.setBackgroundColor(Color.LTGRAY)
         }
 
         // 텍스트 색상 지정
@@ -50,9 +60,9 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
         // 날짜 클릭 이벤트
         holder.itemView.setOnClickListener {
             // 인터페이스를 통해 날짜를 넘겨줌
-            var iYear = day?.year
-            var iMonth = day?.monthValue
-            var iDay = day?.dayOfMonth
+            var iYear   = dateCalendar.get(Calendar.YEAR)
+            var iMonth  = dateCalendar.get(Calendar.MONTH)
+            var iDay    = dateCalendar.get(Calendar.DAY_OF_MONTH)
 
             var yearMonDay = "$iYear 년 $iMonth 월 $iDay 일"
             Toast.makeText(holder.itemView.context, yearMonDay, Toast.LENGTH_SHORT).show()

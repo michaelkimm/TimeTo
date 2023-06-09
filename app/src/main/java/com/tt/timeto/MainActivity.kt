@@ -3,23 +3,22 @@ package com.tt.timeto
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tt.timeto.databinding.ActivityMainBinding
 import java.time.LocalDate
-import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Date
 
 class MainActivity : AppCompatActivity() {
     
     private lateinit var binding: ActivityMainBinding
-    
-    // 년월 변수
-    private lateinit var selectedDate: LocalDate 
-    
+
+    private lateinit var calendar: Calendar
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +28,10 @@ class MainActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         
         // 현재 날짜
-        selectedDate = LocalDate.now()
+        CalendarUtil.selectedDate = LocalDate.now()
+
+        // 초기화
+        calendar = Calendar.getInstance()
         
         // 화면 설정
         setMonthView()
@@ -37,13 +39,15 @@ class MainActivity : AppCompatActivity() {
         // 이전 달 버튼 이벤트
         binding.preBtn.setOnClickListener {
             // 현재 월 -1 변수에 담기
-            selectedDate = selectedDate.minusMonths(1)
+            CalendarUtil.selectedDate = CalendarUtil.selectedDate.minusMonths(1)
+            calendar.add(Calendar.MONTH, -1)    // 현재 달 -1
             setMonthView()
         }
         
         // 다음 달 버튼 이벤트
         binding.nextBtn.setOnClickListener {
-            selectedDate = selectedDate.plusMonths(1)
+            CalendarUtil.selectedDate = CalendarUtil.selectedDate.plusMonths(1)
+            calendar.add(Calendar.MONTH, 1)     // 현재 달 +1
             setMonthView()
         }
     }
@@ -52,10 +56,10 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setMonthView() {
         // 년월 텍스트뷰 셋팅
-         binding.monthYearText.text = monthYearFromDate(selectedDate)
+         binding.monthYearText.text = monthYearFromDate(CalendarUtil.selectedDate)
 
         // 날짜 생성해서 리스트에 담기
-        val dayList = dayInMonthArray(selectedDate)
+        val dayList = dayInMonthArray()
 
         // 어댑터 초기화
         val adapter = CalendarAdapter(dayList)
@@ -79,39 +83,30 @@ class MainActivity : AppCompatActivity() {
         return date.format(formatter)
     }
 
-    // 날짜 타입(년, 월)
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun yearMonthFromDate(date: LocalDate): String {
-        var formatter = DateTimeFormatter.ofPattern("yyyy년 MM월")
-
-        // 받아온 날짜를 해당 포맷으로 변경
-        return date.format(formatter)
-    }
-
     // 날짜 생성
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun dayInMonthArray(date: LocalDate): ArrayList<LocalDate?> {
-        var dayList = ArrayList<LocalDate?>()
+    private fun dayInMonthArray(): ArrayList<Date> {
+        var dayList = ArrayList<Date>()
 
-        var yearMonth = YearMonth.from(date)
+        var monthCalendar = calendar.clone() as Calendar
 
-        // 해당 월 마지막 날짜 가져오기(예: 28, 30, 31)
-        var lastDay = yearMonth.lengthOfMonth()
+        // 1일로 셋팅
+        monthCalendar[Calendar.DAY_OF_MONTH] = 1
 
-        // 해당 월의 첫 번째 날 가져오기(예: 4월 1일)
-        var firstDay = date.withDayOfMonth(1)
+        // 해당 달의 1일의 요일[1: 일요일, 2: 월요일... 7일: 토요일]
+        val firstDayOfMonth = monthCalendar[Calendar.DAY_OF_WEEK] - 1
 
-        // 첫번째 날 요일 가져오기(월:1, 일:7)
-        var dayOfWeek = firstDay.dayOfWeek.value
+        // 요일 숫자만큼 이전 날짜로 설정
+        // 예 : 6월 1일이 수요일이면 3만큼 이전 날짜 셋팅
+        monthCalendar.add(Calendar.DAY_OF_MONTH, -firstDayOfMonth)
 
-        for (i in 1..42) {
-            if (i <= dayOfWeek || i > (lastDay + dayOfWeek)) {
-                dayList.add(null)
-            } else {
-                // LocalDate.of(년, 월, 일)
-                dayList.add(LocalDate.of(selectedDate.year, selectedDate.monthValue, i - dayOfWeek))
-            }
+        while (dayList.size < 42) {
+            dayList.add(monthCalendar.time)
+
+            // 1일씩 늘린다. 1일 -> 2일 -> 3일
+            monthCalendar.add(Calendar.DAY_OF_MONTH, 1)
         }
+
         return dayList
     }
 }
