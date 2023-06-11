@@ -1,4 +1,4 @@
-package com.tt.timeto
+package com.tt.timeto.monthplan
 
 import android.graphics.Color
 import android.os.Build
@@ -9,6 +9,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
+import com.tt.timeto.CalendarUtil
+import com.tt.timeto.R
 import java.util.Calendar
 import java.util.Date
 
@@ -75,7 +77,7 @@ class CalendarAdapter(private val dayList: ArrayList<Date>):
 
             // 텍스트 색상 지정
             if ((position + 1) % 7 == 0) {  // 토요일은 연한 파랑
-                holder.dayText.setTextColor(Color.parseColor("#99CCFF"))
+//                holder.dayText.setTextColor(Color.parseColor("#74F0E4"))
             } else if (position % 7 == 0) { // 일요일은 연한 빨강
                 holder.dayText.setTextColor(Color.parseColor("#FF9999"))
             }
