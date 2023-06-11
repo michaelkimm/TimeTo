@@ -12,14 +12,7 @@ import com.tt.timeto.R
 class ToDoAdapter(private val context: Context): RecyclerView.Adapter<ToDoAdapter.MyViewHolder>() {
 
     // 초기화
-    private var toDoList: List<ToDo> = ArrayList<ToDo>()
-    
-    // 투두 등록
-    fun setToDoList(toDoList: List<ToDo>) {
-        this.toDoList = toDoList
-        // 데이터 재설정
-        notifyDataSetChanged()
-    }
+    private var toDoList: ArrayList<ToDo> = ArrayList<ToDo>()
 
     class MyViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val titleText: TextView = itemView.findViewById(R.id.title_text)
@@ -60,5 +53,17 @@ class ToDoAdapter(private val context: Context): RecyclerView.Adapter<ToDoAdapte
     // 아이템 갯수
     override fun getItemCount(): Int {
         return toDoList.size
+    }
+
+    // 투두 등록
+    fun setToDoList(toDoList: ArrayList<ToDo>) {
+        this.toDoList = toDoList
+        // 데이터 재설정
+        notifyDataSetChanged()
+    }
+
+    // 투두 삭제
+    fun deleteUser(position: Int) {
+        this.toDoList.removeAt(position)
     }
 }

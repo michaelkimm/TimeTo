@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         val dayList = dayInMonthArray()
 
         // 어댑터 초기화
-        val adapter = CalendarAdapter(dayList)
+        val adapter = CalendarAdapter(this, dayList)
 
         // 레이아웃 설정(열 7개)
         var manager: RecyclerView.LayoutManager = GridLayoutManager(applicationContext, 7)

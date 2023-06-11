@@ -1,5 +1,7 @@
 package com.tt.timeto.monthplan
 
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.view.LayoutInflater
@@ -11,10 +13,11 @@ import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.tt.timeto.CalendarUtil
 import com.tt.timeto.R
+import com.tt.timeto.dayplan.DayPlanActivity
 import java.util.Calendar
 import java.util.Date
 
-class CalendarAdapter(private val dayList: ArrayList<Date>):
+class CalendarAdapter(private val context: Context, private val dayList: ArrayList<Date>):
     RecyclerView.Adapter<CalendarAdapter.ItemViewHolder>() {
 
     class ItemViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
@@ -89,7 +92,13 @@ class CalendarAdapter(private val dayList: ArrayList<Date>):
 
 
             var yearMonDay = "$iYear 년 $iMonth 월 $iDay 일"
-            Toast.makeText(holder.itemView.context, yearMonDay, Toast.LENGTH_SHORT).show()
+
+            // dayplan으로 화면 전환
+            var intent: Intent = Intent(context, DayPlanActivity::class.java)
+            intent.putExtra("year", iYear)
+            intent.putExtra("month", iMonth)
+            intent.putExtra("day", iDay)
+            context.startActivity(intent)
         }
     }
 

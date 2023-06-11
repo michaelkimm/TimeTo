@@ -1,14 +1,18 @@
 package com.tt.timeto.dayplan
 
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import androidx.annotation.RequiresApi
 import com.tt.timeto.AppDatabase
 import com.tt.timeto.R
+import kotlinx.datetime.LocalDate
 
 class UpdateActivity : AppCompatActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_update)
@@ -22,6 +26,7 @@ class UpdateActivity : AppCompatActivity() {
         var uId: Int = intent.getIntExtra("uId", 0)
         var uTitle: String? = intent.getStringExtra("uTitle") 
         var uContent: String? = intent.getStringExtra("uContent")
+        var uReservedDate: Int? = intent.getIntExtra("uReservedDate", 0)
         
         // 화면에 값 적용
         upTitleEdit.setText(uTitle)
@@ -34,7 +39,7 @@ class UpdateActivity : AppCompatActivity() {
             var iContent = upContentEdit.text.toString()
 
             // 사용자 클래스 생성
-            var toDo: ToDo = ToDo(uId, iTitle, iContent)
+            var toDo: ToDo = ToDo(uId, iTitle, iContent, LocalDate.fromEpochDays(uReservedDate!!))
 
             // DB 생성
             var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
