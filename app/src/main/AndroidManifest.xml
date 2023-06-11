@@ -13,14 +13,17 @@
         android:theme="@style/Theme.TimeTo"
         tools:targetApi="31">
         <activity
+            android:name=".dayplan.UpdateActivity"
+            android:exported="false" />
+        <activity
             android:name=".dayplan.DayPlanActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
         <activity
             android:name=".dayplan.InsertActivity"
@@ -29,9 +32,7 @@
             android:theme="@style/Theme.TimeTo" />
         <activity
             android:name=".MainActivity"
-            android:exported="false">
-
-        </activity>
+            android:exported="false"></activity>
     </application>
 
 </manifest>

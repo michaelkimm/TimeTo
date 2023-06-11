@@ -33,10 +33,18 @@ class DayPlanActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // UserAdapter 초기화
-        adapter = ToDoAdapter()
+        adapter = ToDoAdapter(this)
 
         // Adapter 적용
         recyclerView.adapter = adapter
+
+        // 사용자 조회
+        loadUserList()
+    }
+
+    // 액티비티가 백그라운드에 있는데 호출되면 실행
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
 
         // 사용자 조회
         loadUserList()
@@ -60,7 +68,6 @@ class DayPlanActivity : AppCompatActivity() {
         if (toDoList.isNotEmpty()) {
             // 데이터 적용
             adapter.setToDoList(toDoList)
-            adapter.notifyDataSetChanged()
         }
     }
 }

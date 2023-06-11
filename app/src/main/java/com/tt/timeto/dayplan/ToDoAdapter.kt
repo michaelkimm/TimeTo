@@ -1,5 +1,7 @@
 package com.tt.timeto.dayplan
 
+import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,13 +9,16 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.tt.timeto.R
 
-class ToDoAdapter: RecyclerView.Adapter<ToDoAdapter.MyViewHolder>() {
+class ToDoAdapter(private val context: Context): RecyclerView.Adapter<ToDoAdapter.MyViewHolder>() {
 
-    private var toDoList = ArrayList<ToDo>()
+    // 초기화
+    private var toDoList: List<ToDo> = ArrayList<ToDo>()
     
     // 투두 등록
-    fun setToDoList(toDoList: ArrayList<ToDo>) {
+    fun setToDoList(toDoList: List<ToDo>) {
         this.toDoList = toDoList
+        // 데이터 재설정
+        notifyDataSetChanged()
     }
 
     class MyViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
@@ -31,8 +36,25 @@ class ToDoAdapter: RecyclerView.Adapter<ToDoAdapter.MyViewHolder>() {
 
     // 데이터 설정
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.titleText.text = toDoList[holder.adapterPosition].title
-        holder.contentText.text = toDoList[holder.adapterPosition].content
+
+        // 데이터 변수에 담기
+        var uId = toDoList[holder.adapterPosition].id
+        var uTitle = toDoList[holder.adapterPosition].title
+        var uContent = toDoList[holder.adapterPosition].content
+
+        // 데이터 적용
+        holder.titleText.text = uTitle
+        holder.contentText.text = uContent
+
+        // 수정 화면으로 이동
+        holder.itemView.setOnClickListener {
+            var intent: Intent = Intent(context, UpdateActivity::class.java)
+            // 값 담기
+            intent.putExtra("uId", uId)
+            intent.putExtra("uTitle", uTitle)
+            intent.putExtra("uContent", uContent)
+            context.startActivity(intent)
+        }
     }
 
     // 아이템 갯수
