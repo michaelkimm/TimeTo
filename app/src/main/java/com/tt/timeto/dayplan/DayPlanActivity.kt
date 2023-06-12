@@ -133,9 +133,7 @@ class DayPlanActivity : AppCompatActivity() {
 
     private val activityResult: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == RESULT_OK) {
-            // 돌아온 값이 OK라면
-
+        if (it.resultCode == RESULT_OK) {   // 돌아온 값이 OK라면
             // 사용자 조회
             loadUserList()
         }
