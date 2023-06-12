@@ -1,4 +1,4 @@
-package com.tt.timeto
+package com.tt.timeto.util
 
 import androidx.room.TypeConverter
 import kotlinx.datetime.LocalDate

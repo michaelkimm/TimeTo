@@ -39,7 +39,7 @@ android {
     }
     buildFeatures {
         dataBinding = true
-        compose true
+        compose = true
     }
     viewBinding {
         enabled = true

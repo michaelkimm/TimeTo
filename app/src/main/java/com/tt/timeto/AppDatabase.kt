@@ -1,14 +1,13 @@
 package com.tt.timeto
 
 import android.content.Context
-import androidx.databinding.adapters.Converters
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.tt.timeto.dayplan.ToDo
 import com.tt.timeto.dayplan.ToDoDao
+import com.tt.timeto.util.LocalDateConverters
 import java.util.concurrent.Executors
 
 @Database(entities = [ToDo::class], version = 1, exportSchema = false)
