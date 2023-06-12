@@ -34,6 +34,7 @@ class ToDoAdapter(private val context: Context): RecyclerView.Adapter<ToDoAdapte
         var uId = toDoList[holder.adapterPosition].id
         var uTitle = toDoList[holder.adapterPosition].title
         var uContent = toDoList[holder.adapterPosition].content
+        var ReservedDate = toDoList[holder.adapterPosition].reservedDate
 
         // 데이터 적용
         holder.titleText.text = uTitle
@@ -46,6 +47,7 @@ class ToDoAdapter(private val context: Context): RecyclerView.Adapter<ToDoAdapte
             intent.putExtra("uId", uId)
             intent.putExtra("uTitle", uTitle)
             intent.putExtra("uContent", uContent)
+            intent.putExtra("uReservedDate", ReservedDate?.toEpochDays())
             context.startActivity(intent)
         }
     }
