@@ -7,14 +7,24 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.tt.timeto.dayplan.ToDo
 import com.tt.timeto.dayplan.ToDoDao
+import com.tt.timeto.notification.Notification
+import com.tt.timeto.notification.NotificationConverters
+import com.tt.timeto.notification.NotificationDao
 import com.tt.timeto.util.LocalDateConverters
 import java.util.concurrent.Executors
 
-@Database(entities = [ToDo::class], version = 1, exportSchema = false)
-@TypeConverters(LocalDateConverters::class)
+@Database(entities = [ToDo::class, Notification::class], version = 1, exportSchema = false)
+@TypeConverters(
+    value = [
+        LocalDateConverters::class,
+        NotificationConverters::class
+    ]
+)
 abstract class AppDatabase: RoomDatabase() {
 
     abstract fun toDoDao(): ToDoDao
+    abstract fun notificationDao(): NotificationDao
+
     companion object {
         private var INSTANCE: AppDatabase? = null
         fun getDatabase(context: Context): AppDatabase? {

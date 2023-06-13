@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tt.timeto.AppDatabase
 import com.tt.timeto.R
+import com.tt.timeto.notification.Notification
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import kotlinx.datetime.LocalDate
 
@@ -70,7 +71,7 @@ class DayPlanActivity : AppCompatActivity() {
 
                 when (direction) {
                     ItemTouchHelper.LEFT -> {
-                        var uId: Int? = toDoList.get(position).id
+                        var uId: Int? = toDoList.get(position).toDoId
                         var uTitle: String? = toDoList.get(position).title
                         var uContent: String? = toDoList.get(position).content
                         var uReservedDate: LocalDate? = toDoList.get(position).reservedDate
@@ -88,6 +89,9 @@ class DayPlanActivity : AppCompatActivity() {
                         
                         // 삭제 쿼리
                         db?.toDoDao()?.deleteToDo(toDo)
+
+                        // Notification 삭제
+
                     }
                 }
             }

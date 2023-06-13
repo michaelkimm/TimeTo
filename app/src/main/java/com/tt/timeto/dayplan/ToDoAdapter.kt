@@ -31,10 +31,10 @@ class ToDoAdapter(private val context: Context): RecyclerView.Adapter<ToDoAdapte
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
 
         // 데이터 변수에 담기
-        var uId = toDoList[holder.adapterPosition].id
+        var uId = toDoList[holder.adapterPosition].toDoId
         var uTitle = toDoList[holder.adapterPosition].title
         var uContent = toDoList[holder.adapterPosition].content
-        var ReservedDate = toDoList[holder.adapterPosition].reservedDate
+        var reservedDate = toDoList[holder.adapterPosition].reservedDate
 
         // 데이터 적용
         holder.titleText.text = uTitle
@@ -47,7 +47,7 @@ class ToDoAdapter(private val context: Context): RecyclerView.Adapter<ToDoAdapte
             intent.putExtra("uId", uId)
             intent.putExtra("uTitle", uTitle)
             intent.putExtra("uContent", uContent)
-            intent.putExtra("uReservedDate", ReservedDate?.toEpochDays())
+            intent.putExtra("uReservedDate", reservedDate?.toEpochDays())
             context.startActivity(intent)
         }
     }

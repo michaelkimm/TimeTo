@@ -19,6 +19,7 @@ import com.tt.timeto.AppDatabase
 import com.tt.timeto.R
 import com.tt.timeto.databinding.ActivityInsertBinding
 import com.tt.timeto.notification.AlertReceiver
+import com.tt.timeto.notification.Notification
 import com.tt.timeto.notification.TimePickerFragment
 import kotlinx.datetime.LocalDate
 import java.text.DateFormat
@@ -47,13 +48,20 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             val sTitle = titleEdit.text.toString()
             val sContent = contentEdit.text.toString()
 
-            // 사용자 등록
-            insertToDo(sTitle, sContent)
+            // ToDo 등록
+            val toDoRowId: Long? = insertToDo(sTitle, sContent)
 
-            Log.d("kkang", "==============================")
-
+            // 알람 등록
+            val nRowId: Long? = insertAlarm(reservedAlarm, toDoRowId)
+            
             // 알람 설정
-            startAlarm(reservedAlarm)
+            startAlarm(nRowId)
+
+            // 상태 값을 돌려준다
+            setResult(Activity.RESULT_OK)
+
+            // 액티비티 닫기
+            finish()
         }
 
         // ToDo 알람 시간 정보
@@ -64,25 +72,23 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             // 시계 호출
             timePicker.show(supportFragmentManager, "Time picker")
         }
-
-//        // 알람 취소
-//        binding.alarmCancelBtn.setOnClickListener {
-//            // 알람 취소 함수
-//            cancelAlarm()
-//        }
     }
 
-    private fun insertToDo(title: String, content: String) {
+    private fun insertAlarm(calendar: Calendar?, toDoRowId: Long?): Long? {
+        // ToDo 저장
+        var notification: Notification = Notification(null, reservedAlarm?.timeInMillis!!, toDoRowId)
+        var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
+
+        return db?.notificationDao()?.insertNotification(notification)
+    }
+
+    private fun insertToDo(title: String, content: String): Long? {
+
+        // ToDo 저장
         val toDo = ToDo(null, title, content, reservedDate)
         var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
 
-        db?.toDoDao()?.insertToDo(toDo)
-
-        // 상태 값을 돌려준다
-        setResult(Activity.RESULT_OK)
-
-        // 액티비티 닫기
-        finish()
+        return db?.toDoDao()?.insertToDo(toDo)
     }
 
     // 시간 정하면 호출되는 함수
@@ -104,15 +110,24 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
     private fun updateTimeText(c: Calendar) {
 
         var curTime = DateFormat.getTimeInstance(DateFormat.SHORT).format(c.time)
-
+        binding.timeText.text = ""
         binding.timeText.append("알람 시간: ")
         binding.timeText.append(curTime)
     }
 
-    private fun startAlarm(c: Calendar?) {
+    private fun startAlarm(notificationId: Long?) {
 
-        if (c == null)
+        if (notificationId == null)
             return
+
+        // 알림 찾기
+        var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
+        val notification: Notification? = db?.notificationDao()?.getNotification(notificationId!!)
+        if (notification == null || notification.reservedTime == null)
+            return
+
+        var c: Calendar = Calendar.getInstance()
+        c.timeInMillis = notification.reservedTime
 
         // 알람매니저 선언
         var alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -122,11 +137,10 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         // store data
         var curTime = DateFormat.getTimeInstance(DateFormat.SHORT).format(c.time)
         intent.putExtra("time", curTime)
-        Log.d("kkang", curTime)
 
         var pendingIntent = PendingIntent.getBroadcast(
             this,
-            1,
+            notificationId.toInt(),
             intent,
             0 or PendingIntent.FLAG_IMMUTABLE
         )
@@ -138,22 +152,4 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, c.timeInMillis, pendingIntent)
     }
-
-//    private fun cancelAlarm() {
-//        // 알람매니저 선언
-//        var alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//
-//        var intent = Intent(this, AlertReceiver::class.java)
-//
-//        var pendingIntent = PendingIntent.getBroadcast(
-//            this,
-//            1,
-//            intent,
-//            0 or PendingIntent.FLAG_IMMUTABLE
-//        )
-//
-//        alarmManager.cancel(pendingIntent)
-//        binding.timeText.text = "알람 취소"
-//    }
-
 }

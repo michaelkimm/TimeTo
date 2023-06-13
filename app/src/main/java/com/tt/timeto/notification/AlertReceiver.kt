@@ -12,13 +12,11 @@ class AlertReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         var notificationHelper: NotificationHelper = NotificationHelper(context)
 
-        // get data ffrom intent
+        // get data from intent
         var time = intent?.extras?.getString("time")
 
         var nb: NotificationCompat.Builder = notificationHelper.getChannelNotification(time)
 
-        Log.d("kkang", "notified!!")
-        
         // 알림 호출
         notificationHelper.getManager().notify(1, nb.build())
     }

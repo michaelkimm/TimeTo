@@ -13,8 +13,11 @@ interface ToDoDao {
     @Query("SELECT * FROM todo WHERE reserved_date = :reservedDate")
     fun getToDoList(reservedDate: LocalDate): List<ToDo>
 
+    @Query("SELECT * FROM todo WHERE to_do_id = :to_do_id")
+    fun getToDo(to_do_id: Int): ToDo?
+
     @Insert
-    fun insertToDo(toDo: ToDo)
+    fun insertToDo(toDo: ToDo): Long?
 
     @Delete
     fun deleteToDo(toDo: ToDo)
