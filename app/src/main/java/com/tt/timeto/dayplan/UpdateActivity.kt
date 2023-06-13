@@ -147,7 +147,10 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         }
         cancelAlarmByManager(notification)
 
+        // 알람 시간 텍스트 업데이트
+        binding.timeUpdateText.text = ""
         Toast.makeText(applicationContext, "알람 취소 완료", Toast.LENGTH_SHORT).show()
+        
     }
 
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
