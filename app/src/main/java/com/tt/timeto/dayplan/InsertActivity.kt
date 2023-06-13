@@ -75,7 +75,7 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
     }
 
     private fun insertAlarm(calendar: Calendar?, toDoRowId: Long?): Long? {
-        // ToDo 저장
+        // 알람 저장
         var notification: Notification = Notification(null, reservedAlarm?.timeInMillis!!, toDoRowId)
         var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
 

@@ -13,7 +13,7 @@ interface NotificationDao {
     fun getNotification(notificationId: Long): Notification?
 
     @Query("SELECT * FROM notification WHERE to_do_id = :toDoId")
-    fun getNotificationByToDo(toDoId: Long): List<Notification>
+    fun getNotificationByToDo(toDoId: Long): Notification?
 
     @Insert
     fun insertNotification(notification: Notification): Long?
