@@ -51,11 +51,12 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             // ToDo 등록
             val toDoRowId: Long? = insertToDo(sTitle, sContent)
 
-            // 알람 등록
-            val nRowId: Long? = insertAlarm(reservedAlarm, toDoRowId)
-            
-            // 알람 설정
-            startAlarm(nRowId)
+            if (reservedAlarm != null) {
+                // 알람 등록
+                val nRowId: Long? = insertAlarm(reservedAlarm, toDoRowId)
+                // 알람 설정
+                startAlarm(nRowId)
+            }
 
             // 상태 값을 돌려준다
             setResult(Activity.RESULT_OK)
