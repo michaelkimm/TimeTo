@@ -48,5 +48,6 @@ class NotificationHelper(base: Context?): ContextWrapper(base) {
             .setContentTitle(time)
             .setContentText("알람입니다.")
             .setSmallIcon(R.drawable.ic_launcher_background)
+            .setAutoCancel(true)
     }
 }

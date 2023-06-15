@@ -141,14 +141,15 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
     }
 
     private fun cancelAlarmWithUIChange(notification: Notification?) {
+        // 알람 시간 텍스트 업데이트
+        binding.timeUpdateText.text = ""
+
         if (notification == null) {
             Toast.makeText(applicationContext, "등록된 알람 없음", Toast.LENGTH_SHORT).show()
             return
         }
         cancelAlarmByManager(notification)
 
-        // 알람 시간 텍스트 업데이트
-        binding.timeUpdateText.text = ""
         Toast.makeText(applicationContext, "알람 취소 완료", Toast.LENGTH_SHORT).show()
         
     }
@@ -171,7 +172,7 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
 
         var curTime = DateFormat.getTimeInstance(DateFormat.SHORT).format(c.time)
         binding.timeUpdateText.text = ""
-        binding.timeUpdateText.append("최근 설정 알람 시간: ")
+        binding.timeUpdateText.append("알람 시간: ")
         binding.timeUpdateText.append(curTime)
     }
 
