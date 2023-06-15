@@ -1,5 +1,8 @@
 package com.tt.timeto.dayplan
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
@@ -16,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tt.timeto.AppDatabase
 import com.tt.timeto.R
+import com.tt.timeto.notification.AlertReceiver
 import com.tt.timeto.notification.Notification
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import kotlinx.datetime.LocalDate
@@ -86,12 +90,19 @@ class DayPlanActivity : AppCompatActivity() {
                         
                         // DB 생성
                         var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
-                        
-                        // 삭제 쿼리
-                        db?.toDoDao()?.deleteToDo(toDo)
 
                         // Notification 삭제
+                        if (uId != null) {
+                            // 삭제 쿼리
+                            var notification: Notification? = db?.notificationDao()?.getNotificationByToDo(uId.toLong())
+                            db?.notificationDao()?.deleteNotification(notification!!)
 
+                            // 설정된 알림 취소
+                            cancelAlarmByManager(notification)
+                        }
+                        
+                        // 일정 삭제 쿼리
+                        db?.toDoDao()?.deleteToDo(toDo)
                     }
                 }
             }
@@ -152,5 +163,24 @@ class DayPlanActivity : AppCompatActivity() {
             // 데이터 적용
             adapter.setToDoList(toDoList)
         }
+    }
+
+    private fun cancelAlarmByManager(notification: Notification?) {
+        if (notification == null)
+            return
+
+        // 알람매니저 선언
+        var alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        var intent = Intent(this, AlertReceiver::class.java)
+
+        var pendingIntent = PendingIntent.getBroadcast(
+            this,
+            notification.notification_id!!.toInt(),
+            intent,
+            0 or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        alarmManager.cancel(pendingIntent)
     }
 }
