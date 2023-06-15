@@ -2,6 +2,7 @@ package com.tt.timeto.dayplan
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,11 +35,16 @@ class ToDoAdapter(private val context: Context): RecyclerView.Adapter<ToDoAdapte
         var uId = toDoList[holder.adapterPosition].toDoId
         var uTitle = toDoList[holder.adapterPosition].title
         var uContent = toDoList[holder.adapterPosition].content
-        var reservedDate = toDoList[holder.adapterPosition].reservedDate
+        var uReservedDate = toDoList[holder.adapterPosition].reservedDate
+        var uIsDone = toDoList[holder.absoluteAdapterPosition].isDone
 
         // 데이터 적용
         holder.titleText.text = uTitle
         holder.contentText.text = uContent
+        if (uIsDone == true) {
+            holder.titleText.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+            holder.contentText.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+        }
 
         // 수정 화면으로 이동
         holder.itemView.setOnClickListener {
@@ -47,7 +53,8 @@ class ToDoAdapter(private val context: Context): RecyclerView.Adapter<ToDoAdapte
             intent.putExtra("uId", uId)
             intent.putExtra("uTitle", uTitle)
             intent.putExtra("uContent", uContent)
-            intent.putExtra("uReservedDate", reservedDate?.toEpochDays())
+            intent.putExtra("uReservedDate", uReservedDate?.toEpochDays())
+            intent.putExtra("uIsDone", uIsDone)
             context.startActivity(intent)
         }
     }
@@ -65,7 +72,12 @@ class ToDoAdapter(private val context: Context): RecyclerView.Adapter<ToDoAdapte
     }
 
     // 투두 삭제
-    fun deleteUser(position: Int) {
+    fun deleteToDo(position: Int) {
         this.toDoList.removeAt(position)
+    }
+
+    // 투두 변경
+    fun updateToDo(position: Int, toDo: ToDo) {
+        this.toDoList.set(position, toDo)
     }
 }

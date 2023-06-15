@@ -22,4 +22,7 @@ data class ToDo(
 
     @ColumnInfo(name = "reserved_date")
     val reservedDate: LocalDate?,
+
+    @ColumnInfo(name = "isDone")
+    val isDone: Boolean?
 )

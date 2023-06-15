@@ -80,15 +80,16 @@ class DayPlanActivity : AppCompatActivity() {
                         var uTitle: String? = toDoList.get(position).title
                         var uContent: String? = toDoList.get(position).content
                         var uReservedDate: LocalDate? = toDoList.get(position).reservedDate
+                        var uIsDone: Boolean? = toDoList.get(position).isDone
 
-                        var toDo: ToDo = ToDo(uId, uTitle, uContent, uReservedDate)
+                        var toDo: ToDo = ToDo(uId, uTitle, uContent, uReservedDate, uIsDone)
 
                         // 아이템 삭제
-                        adapter.deleteUser(position)
+                        adapter.deleteToDo(position)
 
                         // 아이템 삭제 화면 재정리
                         adapter.notifyItemRemoved(position)
-                        
+
                         // DB 생성
                         var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
 
@@ -162,18 +163,17 @@ class DayPlanActivity : AppCompatActivity() {
                         var uContent: String? = toDoList.get(position).content
                         var uReservedDate: LocalDate? = toDoList.get(position).reservedDate
 
-                        var toDo: ToDo = ToDo(uId, uTitle, uContent, uReservedDate)
+                        var toDo: ToDo = ToDo(uId, uTitle, uContent, uReservedDate, true)
 
                         // 아이템 완료로 변경
+                        adapter.updateToDo(position, toDo)
 
-                        // 아이템 삭제 화면 재정리
-                        adapter.notifyItemRemoved(position)
-
-                        // DB 생성
-                        var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
+                        // 화면 재정리
+                        adapter.notifyItemChanged(position)
 
                         // 일정 변경 쿼리
-                        db?.toDoDao()?.deleteToDo(toDo)
+                        AppDatabase.getDatabase(applicationContext)?.toDoDao()?.updateToDo(toDo)
+
                     }
                 }
             }

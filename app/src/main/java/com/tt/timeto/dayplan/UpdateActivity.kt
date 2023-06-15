@@ -49,6 +49,7 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         var uTitle: String? = intent.getStringExtra("uTitle")
         var uContent: String? = intent.getStringExtra("uContent")
         var uReservedDate: Int? = intent.getIntExtra("uReservedDate", 0)
+        var uIsDone: Boolean? = intent.getBooleanExtra("uIsDone", false)
 
         val notification: Notification? = AppDatabase.getDatabase(applicationContext)?.notificationDao()
             ?.getNotificationByToDo(uToDoId.toLong())
@@ -70,7 +71,7 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             var iContent = upContentEdit.text.toString()
 
             // 사용자 클래스 생성
-            var toDo: ToDo = ToDo(uToDoId, iTitle, iContent, LocalDate.fromEpochDays(uReservedDate!!))
+            var toDo: ToDo = ToDo(uToDoId, iTitle, iContent, LocalDate.fromEpochDays(uReservedDate!!), uIsDone)
 
             // DB 생성
             var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
@@ -97,7 +98,7 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
 
         // ToDo 알람 시간 정보
         // 알람 설정
-        binding.timeUpdateBtn.setOnClickListener {
+        timeUpdateBtn.setOnClickListener {
 
             var timePicker = TimePickerFragment()
             // 시계 호출

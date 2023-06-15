@@ -86,7 +86,7 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
     private fun insertToDo(title: String, content: String): Long? {
 
         // ToDo 저장
-        val toDo = ToDo(null, title, content, reservedDate)
+        val toDo = ToDo(null, title, content, reservedDate, false)
         var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
 
         return db?.toDoDao()?.insertToDo(toDo)
