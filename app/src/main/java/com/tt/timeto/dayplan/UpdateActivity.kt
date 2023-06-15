@@ -51,6 +51,9 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         var uReservedDate: Int? = intent.getIntExtra("uReservedDate", 0)
         var uIsDone: Boolean? = intent.getBooleanExtra("uIsDone", false)
 
+        // 화면의 날짜 설정
+        reservedDate = LocalDate.fromEpochDays(uReservedDate!!)
+
         val notification: Notification? = AppDatabase.getDatabase(applicationContext)?.notificationDao()
             ?.getNotificationByToDo(uToDoId.toLong())
 
@@ -159,6 +162,7 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         var c = Calendar.getInstance()
 
         // 시간 설정
+        c.set(Calendar.DAY_OF_MONTH, reservedDate.dayOfMonth)
         c.set(Calendar.HOUR_OF_DAY, hourOfDay)
         c.set(Calendar.MINUTE, minute)
         c.set(Calendar.SECOND, 0)

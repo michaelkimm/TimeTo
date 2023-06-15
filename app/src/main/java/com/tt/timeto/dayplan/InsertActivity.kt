@@ -53,7 +53,7 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
 
             if (reservedAlarm != null) {
                 // 알람 등록
-                val nRowId: Long? = insertAlarm(reservedAlarm, toDoRowId)
+                val nRowId: Long? = insertAlarm(toDoRowId)
                 // 알람 설정
                 startAlarm(nRowId)
             }
@@ -75,7 +75,7 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         }
     }
 
-    private fun insertAlarm(calendar: Calendar?, toDoRowId: Long?): Long? {
+    private fun insertAlarm(toDoRowId: Long?): Long? {
         // 알람 저장
         var notification: Notification = Notification(null, reservedAlarm?.timeInMillis!!, toDoRowId)
         var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
@@ -98,6 +98,7 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         var c = Calendar.getInstance()
 
         // 시간 설정
+        c.set(Calendar.DAY_OF_MONTH, reservedDate.dayOfMonth)
         c.set(Calendar.HOUR_OF_DAY, hourOfDay)
         c.set(Calendar.MINUTE, minute)
         c.set(Calendar.SECOND, 0)
