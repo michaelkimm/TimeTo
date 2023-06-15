@@ -61,6 +61,7 @@ class DayPlanActivity : AppCompatActivity() {
         // 사용자 조회
         loadUserList()
 
+        // 왼쪽 스와이프 -> 일정 삭제
         ItemTouchHelper(object: ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -95,10 +96,13 @@ class DayPlanActivity : AppCompatActivity() {
                         if (uId != null) {
                             // 삭제 쿼리
                             var notification: Notification? = db?.notificationDao()?.getNotificationByToDo(uId.toLong())
-                            db?.notificationDao()?.deleteNotification(notification!!)
+                            if (notification != null) {
+                                // 알림 삭제 쿼리
+                                db?.notificationDao()?.deleteNotification(notification)
 
-                            // 설정된 알림 취소
-                            cancelAlarmByManager(notification)
+                                // 설정된 알림 취소
+                                cancelAlarmByManager(notification)
+                            }
                         }
                         
                         // 일정 삭제 쿼리
@@ -122,6 +126,73 @@ class DayPlanActivity : AppCompatActivity() {
                     .addSwipeLeftActionIcon(R.drawable.ic_delete)
                     .addSwipeLeftLabel("삭제")
                     .setSwipeLeftLabelColor(Color.WHITE)
+                    .create()
+                    .decorate()
+
+                super.onChildDraw(
+                    c,
+                    recyclerView,
+                    viewHolder,
+                    dX,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
+                )
+            }
+        }).attachToRecyclerView(recyclerView)   // recyclerView에 스와이프 적용
+
+
+        // 오른쪽 스와이프 -> 일정 완료
+        ItemTouchHelper(object: ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                var position: Int = viewHolder.bindingAdapterPosition
+
+                when (direction) {
+                    ItemTouchHelper.RIGHT -> {
+                        var uId: Int? = toDoList.get(position).toDoId
+                        var uTitle: String? = toDoList.get(position).title
+                        var uContent: String? = toDoList.get(position).content
+                        var uReservedDate: LocalDate? = toDoList.get(position).reservedDate
+
+                        var toDo: ToDo = ToDo(uId, uTitle, uContent, uReservedDate)
+
+                        // 아이템 완료로 변경
+
+                        // 아이템 삭제 화면 재정리
+                        adapter.notifyItemRemoved(position)
+
+                        // DB 생성
+                        var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
+
+                        // 일정 변경 쿼리
+                        db?.toDoDao()?.deleteToDo(toDo)
+                    }
+                }
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                // 스와이프 기능
+                RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                    .addSwipeRightBackgroundColor(Color.BLUE)
+                    .addSwipeRightActionIcon(R.drawable.ic_check)
+                    .addSwipeRightLabel("완료")
+                    .setSwipeRightLabelColor(Color.WHITE)
                     .create()
                     .decorate()
 
