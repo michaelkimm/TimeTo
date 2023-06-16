@@ -16,6 +16,25 @@
         android:textColor="@android:color/black"
         android:textSize="30dp" />
 
+    <TextView
+        android:id="@+id/title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="30dp"
+        android:layout_below="@+id/time_text"
+        android:textColor="@android:color/black"
+        android:textSize="30dp" />
+
+    <TextView
+        android:id="@+id/content_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/title_text"
+        android:textColor="@android:color/black"
+        android:textSize="30dp" />
+
     <Button
         android:id="@+id/alarm_again_btn"
         android:layout_width="wrap_content"

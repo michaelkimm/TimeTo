@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TimePicker
@@ -89,7 +90,7 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             updateAlarm(reservedAlarm, notification?.notification_id, uToDoId.toLong())
 
             // 알람 설정
-            startAlarm(notification?.notification_id)
+            startAlarm(uToDoId.toLong(), notification?.notification_id)
 
             // 메인 화면으로 이동
             var intent: Intent = Intent(applicationContext, DayPlanActivity::class.java)
@@ -181,7 +182,7 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         binding.timeUpdateText.append(curTime)
     }
 
-    private fun startAlarm(notificationId: Long?) {
+    private fun startAlarm(toDoRowId: Long?, notificationId: Long?) {
 
         if (notificationId == null)
             return
@@ -190,6 +191,11 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
         val notification: Notification? = db?.notificationDao()?.getNotification(notificationId!!)
         if (notification == null || notification.reservedTime == null)
+            return
+
+        // 투두 찾기
+        val toDo: ToDo? = db?.toDoDao()?.getToDo(toDoRowId!!.toInt())
+        if (toDo == null)
             return
 
         var c: Calendar = Calendar.getInstance()
@@ -202,13 +208,16 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
 
         // store data
         var curTime = DateFormat.getTimeInstance(DateFormat.SHORT).format(c.time)
-        intent.putExtra("time", curTime)
+
+        intent.putExtra("title", toDo.title)
+        intent.putExtra("content", toDo.content)
+        intent.putExtra("time", LocalDate.fromEpochDays(notification.reservedTime.toInt()).toString())
 
         var pendingIntent = PendingIntent.getBroadcast(
             this,
             notificationId.toInt(),
             intent,
-            0 or PendingIntent.FLAG_IMMUTABLE
+            0 or PendingIntent.FLAG_MUTABLE
         )
 
         // 설정 시간이 현재 시간 이전이면 +1일

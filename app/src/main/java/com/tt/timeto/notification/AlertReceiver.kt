@@ -19,22 +19,28 @@ class AlertReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
 
-        Log.d("kkang", "alarm!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
         var notificationHelper: NotificationHelper = NotificationHelper(context)
 
         // get data from intent
-        var time = intent?.extras?.getString("time")
+        var title = intent?.getStringExtra("title")
+        var content = intent?.getStringExtra("content")
+        var targetTime = intent?.getStringExtra("time")
 
-        var nb: NotificationCompat.Builder = notificationHelper.getChannelNotification(time)
+        var nb: NotificationCompat.Builder = notificationHelper.getChannelNotification(targetTime)
 
-        val intent = Intent(context, AlarmActivity::class.java)
-        intent.putExtra("time", time)
+        // 푸시 알림 클릭 시 호출될 화면
+        val activityIntent = Intent(context, AlarmActivity::class.java)
+
+        // AlarmActivity에 전달할 데이터
+        activityIntent.putExtra("title", title)
+        activityIntent.putExtra("content", content)
+        activityIntent.putExtra("time", targetTime)
         val pendingIntent =
-            PendingIntent.getActivity(context, 10, intent, PendingIntent.FLAG_MUTABLE)
+            PendingIntent.getActivity(context, (System.currentTimeMillis() / 10000).toInt(), activityIntent, PendingIntent.FLAG_MUTABLE)
         nb.setContentIntent(pendingIntent)
 
-        // 알림 호출
+        // 푸시 알림 호출
         notificationHelper.getManager().notify(1, nb.build())
     }
+
 }

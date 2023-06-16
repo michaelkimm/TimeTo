@@ -55,7 +55,7 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
                 // 알람 등록
                 val nRowId: Long? = insertAlarm(toDoRowId)
                 // 알람 설정
-                startAlarm(nRowId)
+                startAlarm(toDoRowId, nRowId)
             }
 
             // 상태 값을 돌려준다
@@ -117,7 +117,7 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         binding.timeText.append(curTime)
     }
 
-    private fun startAlarm(notificationId: Long?) {
+    private fun startAlarm(toDoRowId: Long?, notificationId: Long?) {
 
         if (notificationId == null)
             return
@@ -126,6 +126,11 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
         val notification: Notification? = db?.notificationDao()?.getNotification(notificationId!!)
         if (notification == null || notification.reservedTime == null)
+            return
+
+        // 투두 찾기
+        val toDo: ToDo? = db?.toDoDao()?.getToDo(toDoRowId!!.toInt())
+        if (toDo == null)
             return
 
         var c: Calendar = Calendar.getInstance()
@@ -138,7 +143,9 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
 
         // store data
         var curTime = DateFormat.getTimeInstance(DateFormat.SHORT).format(c.time)
-        intent.putExtra("time", curTime)
+        intent.putExtra("title", toDo.title)
+        intent.putExtra("content", toDo.content)
+        intent.putExtra("time", LocalDate.fromEpochDays(notification.reservedTime.toInt()).toString())
 
         var pendingIntent = PendingIntent.getBroadcast(
             this,
