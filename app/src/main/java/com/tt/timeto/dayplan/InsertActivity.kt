@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TimePicker
@@ -21,8 +20,10 @@ import com.tt.timeto.databinding.ActivityInsertBinding
 import com.tt.timeto.notification.AlertReceiver
 import com.tt.timeto.notification.Notification
 import com.tt.timeto.notification.TimePickerFragment
-import kotlinx.datetime.LocalDate
+import com.tt.timeto.util.TimeUtil
 import java.text.DateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Calendar
 
 class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
@@ -42,7 +43,7 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         val contentEdit: EditText = binding.contentEdit
         val saveBtn: Button = binding.saveBtn
 
-        reservedDate = LocalDate.fromEpochDays(intent.getIntExtra("reservedDate", 0))
+        reservedDate = LocalDate.ofEpochDay(intent.getLongExtra("reservedDateEpochDay", 0))
 
         saveBtn.setOnClickListener {
             val sTitle = titleEdit.text.toString()
@@ -75,9 +76,12 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun insertAlarm(toDoRowId: Long?): Long? {
         // 알람 저장
-        var notification: Notification = Notification(null, reservedAlarm?.timeInMillis!!, toDoRowId)
+        val localDate: LocalDateTime? = TimeUtil.fromCalendarToLocalDateTime(reservedAlarm!!)
+
+        var notification: Notification = Notification(null, localDate, toDoRowId)
         var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
 
         return db?.notificationDao()?.insertNotification(notification)
@@ -93,6 +97,7 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
     }
 
     // 시간 정하면 호출되는 함수
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onTimeSet(timePicker: TimePicker?, hourOfDay: Int, minute: Int) {
 
         var c = Calendar.getInstance()
@@ -117,6 +122,7 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         binding.timeText.append(curTime)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun startAlarm(toDoRowId: Long?, notificationId: Long?) {
 
         if (notificationId == null)
@@ -133,8 +139,7 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         if (toDo == null)
             return
 
-        var c: Calendar = Calendar.getInstance()
-        c.timeInMillis = notification.reservedTime
+        val reservedTimeInMillis = TimeUtil.fromLocalDateTimeToEpochMilli(notification.reservedTime)
 
         // 알람매니저 선언
         var alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -142,10 +147,9 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         var intent = Intent(this, AlertReceiver::class.java)
 
         // store data
-        var curTime = DateFormat.getTimeInstance(DateFormat.SHORT).format(c.time)
         intent.putExtra("title", toDo.title)
         intent.putExtra("content", toDo.content)
-        intent.putExtra("time", LocalDate.fromEpochDays(notification.reservedTime.toInt()).toString())
+        intent.putExtra("reservedTimeInMillis", reservedTimeInMillis)
 
         var pendingIntent = PendingIntent.getBroadcast(
             this,
@@ -154,11 +158,6 @@ class InsertActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             0 or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // 설정 시간이 현재 시간 이전이면 +1일
-        if (c.before(Calendar.getInstance())) {
-            c.add(Calendar.DATE, 1)
-        }
-
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, c.timeInMillis, pendingIntent)
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, reservedTimeInMillis, pendingIntent)
     }
 }

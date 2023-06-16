@@ -8,7 +8,6 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TimePicker
@@ -17,13 +16,13 @@ import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import com.tt.timeto.AppDatabase
 import com.tt.timeto.R
-import com.tt.timeto.databinding.ActivityInsertBinding
 import com.tt.timeto.databinding.ActivityUpdateBinding
 import com.tt.timeto.notification.AlertReceiver
 import com.tt.timeto.notification.Notification
 import com.tt.timeto.notification.TimePickerFragment
-import kotlinx.datetime.LocalDate
+import com.tt.timeto.util.TimeUtil
 import java.text.DateFormat
+import java.time.LocalDate
 import java.util.Calendar
 
 class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
@@ -49,11 +48,11 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         var uToDoId: Int = intent.getIntExtra("uId", 0)
         var uTitle: String? = intent.getStringExtra("uTitle")
         var uContent: String? = intent.getStringExtra("uContent")
-        var uReservedDate: Int? = intent.getIntExtra("uReservedDate", 0)
+        var uReservedDate: Long? = intent.getLongExtra("uReservedDate", 0)
         var uIsDone: Boolean? = intent.getBooleanExtra("uIsDone", false)
 
         // 화면의 날짜 설정
-        reservedDate = LocalDate.fromEpochDays(uReservedDate!!)
+        reservedDate = LocalDate.ofEpochDay(uReservedDate!!)
 
         val notification: Notification? = AppDatabase.getDatabase(applicationContext)?.notificationDao()
             ?.getNotificationByToDo(uToDoId.toLong())
@@ -61,13 +60,12 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         // 화면에 값 적용
         upTitleEdit.setText(uTitle)
         upContentEdit.setText(uContent)
-        val calendar: Calendar = Calendar.getInstance()
-        if (notification != null) {
-            calendar.timeInMillis = notification.reservedTime
+        if (notification != null && notification.reservedTime != null) {
+            val calendar: Calendar = Calendar.getInstance()
+            calendar.timeInMillis = TimeUtil.fromLocalDateTimeToEpochMilli(notification.reservedTime)
             updateTimeText(calendar)
         }
 
-        
         // 수정 버튼 이벤트
         updateBtn.setOnClickListener { 
             // 입력 값 변수에 담기
@@ -75,7 +73,7 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             var iContent = upContentEdit.text.toString()
 
             // 사용자 클래스 생성
-            var toDo: ToDo = ToDo(uToDoId, iTitle, iContent, LocalDate.fromEpochDays(uReservedDate!!), uIsDone)
+            var toDo: ToDo = ToDo(uToDoId, iTitle, iContent, LocalDate.ofEpochDay(uReservedDate!!.toLong()), uIsDone)
 
             // DB 생성
             var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
@@ -87,10 +85,10 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             cancelAlarmByManager(notification)
 
             // 알람 등록
-            updateAlarm(reservedAlarm, notification?.notification_id, uToDoId.toLong())
+            val newNotificationId: Long? = updateOrInsertAlarm(reservedAlarm, notification?.notification_id, uToDoId.toLong())
 
             // 알람 설정
-            startAlarm(uToDoId.toLong(), notification?.notification_id)
+            startAlarm(uToDoId.toLong(), newNotificationId)
 
             // 메인 화면으로 이동
             var intent: Intent = Intent(applicationContext, DayPlanActivity::class.java)
@@ -118,12 +116,21 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         }
     }
 
-    private fun updateAlarm(reservedAlarm: Calendar?, notificationId: Long?, toDoRowId: Long?, ) {
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun updateOrInsertAlarm(reservedAlarm: Calendar?, notificationId: Long?, toDoRowId: Long?, ): Long? {
+        if (reservedAlarm == null) {
+            return null
+        }
         // 알람 수정
-        var notification: Notification = Notification(notificationId, reservedAlarm?.timeInMillis!!, toDoRowId)
+        var notification: Notification = Notification(notificationId, TimeUtil.fromCalendarToLocalDateTime(reservedAlarm!!), toDoRowId)
         var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
 
-        db?.notificationDao()?.updateNotification(notification)
+        if (notificationId == null) {
+            return db?.notificationDao()?.insertNotification(notification)
+        } else {
+            db?.notificationDao()?.updateNotification(notification)
+            return notificationId
+        }
     }
 
     private fun cancelAlarmByManager(notification: Notification?) {
@@ -156,9 +163,9 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         cancelAlarmByManager(notification)
 
         Toast.makeText(applicationContext, "알람 취소 완료", Toast.LENGTH_SHORT).show()
-        
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
         var c = Calendar.getInstance()
 
@@ -182,6 +189,7 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         binding.timeUpdateText.append(curTime)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun startAlarm(toDoRowId: Long?, notificationId: Long?) {
 
         if (notificationId == null)
@@ -199,19 +207,16 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             return
 
         var c: Calendar = Calendar.getInstance()
-        c.timeInMillis = notification.reservedTime
+        c.timeInMillis = TimeUtil.fromLocalDateTimeToEpochMilli(notification.reservedTime)
 
         // 알람매니저 선언
         var alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         var intent = Intent(this, AlertReceiver::class.java)
 
-        // store data
-        var curTime = DateFormat.getTimeInstance(DateFormat.SHORT).format(c.time)
-
         intent.putExtra("title", toDo.title)
         intent.putExtra("content", toDo.content)
-        intent.putExtra("time", LocalDate.fromEpochDays(notification.reservedTime.toInt()).toString())
+        intent.putExtra("reservedTimeInMillis", TimeUtil.fromLocalDateTimeToEpochMilli(notification.reservedTime))
 
         var pendingIntent = PendingIntent.getBroadcast(
             this,

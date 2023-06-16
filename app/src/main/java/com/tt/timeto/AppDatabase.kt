@@ -11,13 +11,15 @@ import com.tt.timeto.notification.Notification
 import com.tt.timeto.notification.NotificationConverters
 import com.tt.timeto.notification.NotificationDao
 import com.tt.timeto.util.LocalDateConverters
+import com.tt.timeto.util.LocalDateTimeConverters
 import java.util.concurrent.Executors
 
 @Database(entities = [ToDo::class, Notification::class], version = 1, exportSchema = false)
 @TypeConverters(
     value = [
         LocalDateConverters::class,
-        NotificationConverters::class
+        NotificationConverters::class,
+        LocalDateTimeConverters::class
     ]
 )
 abstract class AppDatabase: RoomDatabase() {

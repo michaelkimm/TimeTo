@@ -9,7 +9,6 @@ import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -22,7 +21,7 @@ import com.tt.timeto.R
 import com.tt.timeto.notification.AlertReceiver
 import com.tt.timeto.notification.Notification
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
-import kotlinx.datetime.LocalDate
+import java.time.LocalDate
 
 class DayPlanActivity : AppCompatActivity() {
 
@@ -38,13 +37,13 @@ class DayPlanActivity : AppCompatActivity() {
         var reservedYear: Int? = intent.getIntExtra("year", 0)
         var reservedMonth: Int? = intent.getIntExtra("month", 0)
         var reservedDay: Int? = intent.getIntExtra("day", 0)
-        reservedDate = LocalDate(reservedYear!!, reservedMonth!!, reservedDay!!)
+        reservedDate = LocalDate.of(reservedYear!!, reservedMonth!!, reservedDay!!)
 
         // 버튼 이벤트 등록
         val insertBtn: FloatingActionButton = findViewById(R.id.insert_btn)
         insertBtn.setOnClickListener {
             val intent: Intent = Intent(this, InsertActivity::class.java)
-            intent.putExtra("reservedDate", reservedDate.toEpochDays())
+            intent.putExtra("reservedDateEpochDay", reservedDate.toEpochDay())
             activityResult.launch(intent)
         }
 

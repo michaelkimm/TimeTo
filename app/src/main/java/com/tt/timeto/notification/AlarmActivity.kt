@@ -3,9 +3,7 @@ package com.tt.timeto.notification
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import com.tt.timeto.MainActivity
 import com.tt.timeto.R
@@ -25,7 +23,7 @@ class AlarmActivity : AppCompatActivity() {
         // 알람 시간 받아오기
         val title = intent.getStringExtra("title")
         val content = intent.getStringExtra("content")
-        val targetTime: String? = intent?.extras?.getString("time")
+        val targetTime: String? = intent?.extras?.getString("timeLocalDateTimeString")
 
         // 알람 내용 보여주기
         // 예약 시간 보여주기

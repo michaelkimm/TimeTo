@@ -7,6 +7,8 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.tt.timeto.dayplan.ToDo
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
+import java.time.LocalDateTime
 
 @Parcelize
 @Entity(
@@ -27,7 +29,7 @@ data class Notification (
     val notification_id: Long?,
 
     @ColumnInfo(name = "reserved_time")
-    val reservedTime: Long,
+    val reservedTime: @RawValue LocalDateTime?,
 
     @ColumnInfo(name = "to_do_id")
     val toDoId: Long?

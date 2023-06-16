@@ -2,10 +2,8 @@ package com.tt.timeto.dayplan
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.tt.timeto.notification.Notification
-import kotlinx.datetime.LocalDate
+import java.time.LocalDate
 
 @Entity(tableName = "todo")
 data class ToDo(

@@ -1,10 +1,13 @@
 package com.tt.timeto.util
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.TypeConverter
-import kotlinx.datetime.LocalDate
+import java.time.LocalDate
 
 class LocalDateConverters {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @TypeConverter
     fun jsonToLocalDate(value: String): LocalDate {
         return LocalDate.parse(value)

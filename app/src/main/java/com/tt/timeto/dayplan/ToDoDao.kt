@@ -5,7 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import kotlinx.datetime.LocalDate
+import java.time.LocalDate
 
 @Dao
 interface ToDoDao {

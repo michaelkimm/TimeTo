@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setMonthView() {
         // 년월 텍스트뷰 셋팅
-         binding.monthYearText.text = monthYearFromDate(CalendarUtil.selectedDate)
+        binding.monthYearText.text = monthYearFromDate(CalendarUtil.selectedDate)
 
         // 날짜 생성해서 리스트에 담기
         val dayList = dayInMonthArray()

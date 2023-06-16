@@ -3,10 +3,12 @@ package com.tt.timeto.dayplan
 import android.content.Context
 import android.content.Intent
 import android.graphics.Paint
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.tt.timeto.R
 
@@ -29,6 +31,7 @@ class ToDoAdapter(private val context: Context): RecyclerView.Adapter<ToDoAdapte
     }
 
     // 데이터 설정
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
 
         // 데이터 변수에 담기
@@ -53,7 +56,7 @@ class ToDoAdapter(private val context: Context): RecyclerView.Adapter<ToDoAdapte
             intent.putExtra("uId", uId)
             intent.putExtra("uTitle", uTitle)
             intent.putExtra("uContent", uContent)
-            intent.putExtra("uReservedDate", uReservedDate?.toEpochDays())
+            intent.putExtra("uReservedDate", uReservedDate?.toEpochDay())
             intent.putExtra("uIsDone", uIsDone)
             context.startActivity(intent)
         }

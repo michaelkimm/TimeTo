@@ -87,10 +87,11 @@ class CalendarAdapter(private val context: Context, private val dayList: ArrayLi
 
         // 날짜 클릭 이벤트
         holder.itemView.setOnClickListener {
+
             // dayplan으로 화면 전환
             var intent: Intent = Intent(context, DayPlanActivity::class.java)
             intent.putExtra("year", iYear)
-            intent.putExtra("month", iMonth)
+            intent.putExtra("month", iMonth + 1)
             intent.putExtra("day", iDay)
             context.startActivity(intent)
         }
