@@ -20,6 +20,8 @@ import com.tt.timeto.databinding.ActivityUpdateBinding
 import com.tt.timeto.notification.AlertReceiver
 import com.tt.timeto.notification.Notification
 import com.tt.timeto.notification.TimePickerFragment
+import com.tt.timeto.util.AlarmUtil
+import com.tt.timeto.util.AlarmUtil.Companion.cancelAlarmByManager
 import com.tt.timeto.util.TimeUtil
 import java.text.DateFormat
 import java.time.LocalDate
@@ -82,13 +84,13 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             db?.toDoDao()?.updateToDo(toDo)
 
             // 등록된 알람 취소
-            cancelAlarmByManager(notification)
+            AlarmUtil.cancelAlarmByManager(this, getSystemService(Context.ALARM_SERVICE) as AlarmManager, notification)
 
             // 알람 등록
-            val newNotificationId: Long? = updateOrInsertAlarm(reservedAlarm, notification?.notification_id, uToDoId.toLong())
+            val newNotificationId: Long? = AlarmUtil.updateOrInsertAlarm(this, reservedAlarm, notification?.notification_id, uToDoId.toLong())
 
             // 알람 설정
-            startAlarm(uToDoId.toLong(), newNotificationId)
+            AlarmUtil.startAlarm(uToDoId.toLong(), newNotificationId, getSystemService(Context.ALARM_SERVICE) as AlarmManager, this)
 
             // 메인 화면으로 이동
             var intent: Intent = Intent(applicationContext, DayPlanActivity::class.java)
@@ -112,47 +114,15 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         alarmCancelBtn.setOnClickListener {
             // 알람 취소 함수
             var notification: Notification? = AppDatabase.getDatabase(applicationContext)?.notificationDao()?.getNotificationByToDo(uToDoId.toLong())
-            cancelAlarmWithUIChange(notification)
+            AlarmUtil.cancelAlarmByManager(this, getSystemService(Context.ALARM_SERVICE) as AlarmManager, notification)
+            cancelAlarmUIChange(notification)
+            if (notification != null) {
+                AppDatabase.getDatabase(applicationContext)?.notificationDao()?.deleteNotification(notification)
+            }
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun updateOrInsertAlarm(reservedAlarm: Calendar?, notificationId: Long?, toDoRowId: Long?, ): Long? {
-        if (reservedAlarm == null) {
-            return null
-        }
-        // 알람 수정
-        var notification: Notification = Notification(notificationId, TimeUtil.fromCalendarToLocalDateTime(reservedAlarm!!), toDoRowId)
-        var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
-
-        if (notificationId == null) {
-            return db?.notificationDao()?.insertNotification(notification)
-        } else {
-            db?.notificationDao()?.updateNotification(notification)
-            return notificationId
-        }
-    }
-
-    private fun cancelAlarmByManager(notification: Notification?) {
-        if (notification == null)
-            return
-
-        // 알람매니저 선언
-        var alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-        var intent = Intent(this, AlertReceiver::class.java)
-
-        var pendingIntent = PendingIntent.getBroadcast(
-            this,
-            notification.notification_id!!.toInt(),
-            intent,
-            0 or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        alarmManager.cancel(pendingIntent)
-    }
-
-    private fun cancelAlarmWithUIChange(notification: Notification?) {
+    private fun cancelAlarmUIChange(notification: Notification?) {
         // 알람 시간 텍스트 업데이트
         binding.timeUpdateText.text = ""
 
@@ -160,7 +130,6 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             Toast.makeText(applicationContext, "등록된 알람 없음", Toast.LENGTH_SHORT).show()
             return
         }
-        cancelAlarmByManager(notification)
 
         Toast.makeText(applicationContext, "알람 취소 완료", Toast.LENGTH_SHORT).show()
     }
@@ -187,49 +156,5 @@ class UpdateActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         binding.timeUpdateText.text = ""
         binding.timeUpdateText.append("알람 시간: ")
         binding.timeUpdateText.append(curTime)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun startAlarm(toDoRowId: Long?, notificationId: Long?) {
-
-        if (notificationId == null)
-            return
-
-        // 알림 찾기
-        var db: AppDatabase? = AppDatabase.getDatabase(applicationContext)
-        val notification: Notification? = db?.notificationDao()?.getNotification(notificationId!!)
-        if (notification == null || notification.reservedTime == null)
-            return
-
-        // 투두 찾기
-        val toDo: ToDo? = db?.toDoDao()?.getToDo(toDoRowId!!.toInt())
-        if (toDo == null)
-            return
-
-        var c: Calendar = Calendar.getInstance()
-        c.timeInMillis = TimeUtil.fromLocalDateTimeToEpochMilli(notification.reservedTime)
-
-        // 알람매니저 선언
-        var alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-        var intent = Intent(this, AlertReceiver::class.java)
-
-        intent.putExtra("title", toDo.title)
-        intent.putExtra("content", toDo.content)
-        intent.putExtra("reservedTimeInMillis", TimeUtil.fromLocalDateTimeToEpochMilli(notification.reservedTime))
-
-        var pendingIntent = PendingIntent.getBroadcast(
-            this,
-            notificationId.toInt(),
-            intent,
-            0 or PendingIntent.FLAG_MUTABLE
-        )
-
-        // 설정 시간이 현재 시간 이전이면 +1일
-        if (c.before(Calendar.getInstance())) {
-            c.add(Calendar.DATE, 1)
-        }
-
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, c.timeInMillis, pendingIntent)
     }
 }

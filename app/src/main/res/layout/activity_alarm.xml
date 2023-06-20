@@ -42,7 +42,7 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:textSize="15dp"
-        android:text="다시 울림" />
+        android:text="5분 후 다시 알림" />
 
     <Button
         android:id="@+id/stop_alarm_btn"
