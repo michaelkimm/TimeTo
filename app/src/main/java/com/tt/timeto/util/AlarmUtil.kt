@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.tt.timeto.AppDatabase
 import com.tt.timeto.dayplan.ToDo
@@ -96,10 +97,9 @@ class AlarmUtil {
 
             var intent = Intent(context, AlertReceiver::class.java)
 
-            intent.putExtra(
-                "reservedTimeInMillis",
-                TimeUtil.fromLocalDateTimeToEpochMilli(notification.reservedTime)
-            )
+            intent.putExtra("title", toDo.title)
+            intent.putExtra("content", toDo.content)
+            intent.putExtra("reservedTimeInMillis", TimeUtil.fromLocalDateTimeToEpochMilli(notification.reservedTime))
 
             var pendingIntent = PendingIntent.getBroadcast(
                 context,
