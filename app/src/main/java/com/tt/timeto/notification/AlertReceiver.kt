@@ -33,11 +33,11 @@ class AlertReceiver: BroadcastReceiver() {
         activityIntent.putExtra("content", content)
         activityIntent.putExtra("timeLocalDateTimeString", localDateTime.toString())
         val pendingIntent =
-            PendingIntent.getActivity(context, (System.currentTimeMillis() / 10000).toInt(), activityIntent, PendingIntent.FLAG_MUTABLE)
+            PendingIntent.getActivity(context, (System.currentTimeMillis() / 1000).toInt(), activityIntent, PendingIntent.FLAG_MUTABLE)
         nb.setContentIntent(pendingIntent)
 
         // 푸시 알림 호출
-        notificationHelper.getManager().notify(1, nb.build())
+        notificationHelper.getManager().notify((System.currentTimeMillis() / 1000).toInt(), nb.build())
     }
 
 }
