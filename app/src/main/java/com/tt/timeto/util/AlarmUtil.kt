@@ -5,14 +5,11 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat.getSystemService
 import com.tt.timeto.AppDatabase
 import com.tt.timeto.dayplan.ToDo
 import com.tt.timeto.notification.AlertReceiver
 import com.tt.timeto.notification.Notification
-import java.time.LocalDateTime
 import java.util.Calendar
 
 class AlarmUtil {

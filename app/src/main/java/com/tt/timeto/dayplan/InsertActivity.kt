@@ -2,13 +2,10 @@ package com.tt.timeto.dayplan
 
 import android.app.Activity
 import android.app.AlarmManager
-import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TimePicker

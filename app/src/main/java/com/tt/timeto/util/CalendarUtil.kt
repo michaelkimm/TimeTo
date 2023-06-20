@@ -2,7 +2,6 @@ package com.tt.timeto.util
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import java.time.LocalDate
 import java.util.Calendar
 
 class CalendarUtil {

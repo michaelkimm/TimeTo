@@ -1,7 +1,6 @@
 package com.tt.timeto.dayplan
 
 import android.app.AlarmManager
-import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
@@ -17,11 +16,9 @@ import androidx.databinding.DataBindingUtil
 import com.tt.timeto.AppDatabase
 import com.tt.timeto.R
 import com.tt.timeto.databinding.ActivityUpdateBinding
-import com.tt.timeto.notification.AlertReceiver
 import com.tt.timeto.notification.Notification
 import com.tt.timeto.notification.TimePickerFragment
 import com.tt.timeto.util.AlarmUtil
-import com.tt.timeto.util.AlarmUtil.Companion.cancelAlarmByManager
 import com.tt.timeto.util.TimeUtil
 import java.text.DateFormat
 import java.time.LocalDate
